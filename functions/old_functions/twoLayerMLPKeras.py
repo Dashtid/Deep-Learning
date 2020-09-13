@@ -1,10 +1,9 @@
-from lab1.Lab1 import Input, Target
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Conv2D
 
 
-def twoLayerMLP(n_unit, learning_rate, epochs):
+def twoLayerMLP(n_unit):
     model = Sequential()
     model.add(Dense(n_unit, input_dim=2, activation='relu'))  # Creating first layer with activation function 'Relu'
     model.add(Dense(1, activation='sigmoid'))  # Creating a second layer with activation function 'Sigmoid'

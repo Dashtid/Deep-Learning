@@ -2,11 +2,14 @@ import os
 from random import shuffle
 
 import numpy as np
+from matplotlib import pyplot as plt
 from skimage.io import imread
 from skimage.transform import resize
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img
+
+from lab3.Lab3_Task3_and_Task4_and_Task5 import col, row
 
 
-# Loading data
 def gen_labels(im_name, label_list):
     #   '''
     # Parameters
@@ -100,3 +103,39 @@ def get_train_test_arrays(train_data_path, test_data_path, train_list,
     del train_data
     del test_data
     return train_img, test_img, train_label, test_label
+
+
+def datagenerator(train_dir, val_dir):
+    train_datagen = ImageDataGenerator(rotation_range=10,
+                                       width_shift_range=0.1,
+                                       height_shift_range=0.1,
+                                       rescale=1. / 255,
+                                       horizontal_flip=True)
+    train_generator = train_datagen.flow_from_directory(train_dir, batch_size=8, color_mode='grayscale',
+                                                        class_mode='binary')
+    val_datagen = ImageDataGenerator(rescale=1. / 255)
+    val_generator = val_datagen.flow_from_directory(val_dir, batch_size=8, color_mode='grayscale', class_mode='binary')
+    return train_generator, val_generator
+
+
+def show_paired(original, transform, operation):
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    ax = axes.ravel()
+    ax[0].imshow(original, cmap='gray')
+    ax[0].set_title("Original image")
+
+    ax[1].imshow(transform, cmap='gray')
+    ax[1].set_title(operation + " image")
+    if operation == "Rescaled":
+        ax[0].set_xlim(0, col)
+        ax[0].set_ylim(row, 0)
+    else:
+        ax[0].axis('off')
+        ax[1].axis('off')
+    plt.tight_layout()
+
+
+def get_length(path, pattern):
+    # Pattern: name of the subdirectory
+    Length = len(os.listdir(os.path.join(path, pattern)))
+    return Length

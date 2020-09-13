@@ -1,15 +1,11 @@
 import os
-import numpy as np
-from random import shuffle
-from skimage.io import imread
 from skimage.transform import resize
 from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
-from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Conv2D, Activation, Dropout
 
-from functions.networks import lenet_with_softmax_multi, alexnet_with_dropout_and_softmax_multi
-from functions.training_tools import train_with_adam_and_accuracyplot
+from functions.Lab2.networks import lenet_with_softmax_multi, alexnet_with_dropout_and_softmax_multi
+from functions.Lab2.training_tools import train_with_adam_and_accuracyplot
 from functions.dataloader import get_train_test_arrays
 
 # --- Task 10  --- #
@@ -18,7 +14,7 @@ if __name__ == "__main__":
     # Organ Images
     xray_labels_string_list = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
     img_w, img_h = 128, 128  # Setting the width and heights of the images.
-    data_path = '/DL_course_data/Lab1/X_ray/'  # Path to data root with two subdirs.
+    data_path = '/DL_course_data/lab1/X_ray/'  # Path to data root with two subdirs.
     train_data_path = os.path.join(data_path, 'train')
     test_data_path = os.path.join(data_path, 'test')
     train_list = os.listdir(train_data_path)

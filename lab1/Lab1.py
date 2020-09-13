@@ -94,7 +94,7 @@ if __name__ == "__main__":
     # Loading data
 
     img_w, img_h = 128, 128  # Setting the width and heights of the images.
-    data_path = '/DL_course_data/Lab1/Skin/'  # Path to data root with two subdirs.
+    data_path = '/DL_course_data/lab1/Skin/'  # Path to data root with two subdirs.
     train_data_path = os.path.join(data_path, 'train')
     test_data_path = os.path.join(data_path, 'test')
     train_list = os.listdir(train_data_path)
