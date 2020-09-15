@@ -20,11 +20,11 @@ from functions.Lab3.networks import alexnet, vgg16
 from functions.Lab3.training_tools import train_with_generator
 from functions.dataloader import datagenerator, show_paired
 
-# --- Task 3 --- #
+# --- Task 3 & 4 & 5 --- #
 
 if __name__ == "__main__":
 
-    # ------------------- Task 3A ------------------- #
+    # --------------------------------------Task 3A -------------------------------------- #
 
     sample_dir = '/DL_course_data/lab1/X_ray/train/C4_4662.jpg'
     img = imread(sample_dir)
@@ -42,19 +42,19 @@ if __name__ == "__main__":
 
     # Horizontal Flip
     horizontal_flip = img[:, ::-1]
-    show_paired(img, horizontal_flip, 'Horizontal Flip')
+    show_paired(img, row, col, horizontal_flip, 'Horizontal Flip')
 
     # Vertical Flip
     vertical_flip = img[::-1, :]
-    show_paired(img, vertical_flip, 'vertical Flip')
+    show_paired(img, row, col, vertical_flip, 'vertical Flip')
 
     # Intensity rescaling
     low_bound, high_bound = 1, 50
     min_val, max_val = np.percentile(img, (low_bound, high_bound))
     better_contrast = exposure.rescale_intensity(img, in_range=(min_val, max_val))
-    show_paired(img, better_contrast, 'Intensity Rescaling')
+    show_paired(img, better_contrast, row, col, 'Intensity Rescaling')
 
-    # ------------------- Task 3B ------------------- #
+    # -------------------------------------- Task 3B -------------------------------------- #
 
     Sample = '/DL_course_data/lab1/X_ray/train/C4_4662.jpg'
     Img = imread(Sample)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         if i >= count:
             break
 
-    # ------------------- Task 4 ------------------- #
+    # -------------------------------------- Task 4 -------------------------------------- #
 
     train_dir = '/DL_course_data/lab2/Skin/train/'
     val_dir = '/DL_course_data/lab2/Skin/validation/'
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     alexnet4 = alexnet(img_ch, img_w, img_h, base, dropout, batch_norm, spat_dropout)
     train_with_generator(alexnet4, learning_rate, train_generator, n_ep, val_generator)
 
-    # ------------------- Task 5 ------------------- #
+    # -------------------------------------- Task 5 -------------------------------------- #
 
     vgg16_1 = vgg16(img_ch, img_w, img_h, base, batch_norm)
     train_with_generator(vgg16_1, learning_rate, train_generator, n_ep, val_generator)
