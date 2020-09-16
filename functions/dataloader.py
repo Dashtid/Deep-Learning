@@ -103,17 +103,19 @@ def get_train_test_arrays(train_data_path, test_data_path, train_list,
     return train_img, test_img, train_label, test_label
 
 
-def datagenerator(train_dir, val_dir):
+def datagenerator(train_dir, val_dir, target_size=(256, 256), class_mode='binary', **kwargs):
     train_datagenerator = ImageDataGenerator(rotation_range=10,
                                              width_shift_range=0.1,
                                              height_shift_range=0.1,
                                              rescale=1. / 255,
                                              horizontal_flip=True)
-    train_generator = train_datagenerator.flow_from_directory(train_dir, batch_size=8, color_mode='grayscale',
-                                                              class_mode='binary')
+    train_generator = train_datagenerator.flow_from_directory(train_dir, target_size=target_size, batch_size=8,
+                                                              color_mode='grayscale',
+                                                              class_mode=class_mode)
     val_datagenerator = ImageDataGenerator(rescale=1. / 255)
-    val_generator = val_datagenerator.flow_from_directory(val_dir, batch_size=8, color_mode='grayscale',
-                                                          class_mode='binary')
+    val_generator = val_datagenerator.flow_from_directory(val_dir, target_size=target_size, batch_size=8,
+                                                          color_mode='grayscale',
+                                                          class_mode=class_mode)
     return train_generator, val_generator
 
 
@@ -132,6 +134,7 @@ def show_paired(original, row, col, transform, operation):
         ax[0].axis('off')
         ax[1].axis('off')
     plt.tight_layout()
+    plt.show()
 
 
 def get_length(path, pattern):

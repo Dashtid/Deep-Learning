@@ -6,6 +6,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from functions.Lab3.networks import MLP
+from functions.Lab3.training_tools import train_with_adam
 from functions.dataloader import get_length
 
 # --- Task 6 --- #
@@ -74,26 +75,5 @@ if __name__ == "__main__":
     validation_data = features_validation
     validation_labels = np.array([0] * int(Len_C1_Val) + [1] * int(Len_C2_Val))
 
-    mlp = MLP(1112, 7, 7)
-
-    mlp.compile(loss='binary_crossentropy',
-                optimizer=Adam(lr=LR),
-                metrics=['binary_accuracy'])
-
-    # Trains the model for 150 epochs with 8 images in each batch
-    mlp_hist = mlp.fit(train_data, train_labels,
-                       batch_size=batch_size,
-                       epochs=epochs,
-                       validation_data=(validation_data, validation_labels))
-
-    # ---- Plotting ---- #
-    plt.figure(figsize=(4, 4))
-    plt.title("Learning curve")
-    plt.plot(mlp_hist.history["loss"], label="loss")
-    plt.plot(mlp_hist.history["val_loss"], label="val_loss")
-    plt.plot(np.argmin(mlp_hist.history["val_loss"]),
-             np.min(mlp_hist.history["val_loss"]),
-             marker="x", color="r", label="best model")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss Value")
-    plt.legend()
+    mlp = MLP(7, 7, 512)
+    train_with_adam(mlp)

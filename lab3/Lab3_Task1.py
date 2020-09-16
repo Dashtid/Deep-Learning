@@ -27,9 +27,9 @@ if __name__ == "__main__":
     # Setting paths and lists to be able to load in data
     skin_labels_string_list = ['Mel', 'Nev']
     img_w, img_h = 128, 128  # Setting the width and heights of the images.
-    data_path = '/DL_course_data/Lab2/Skin/'  # Path to data root with two subdirs.
+    data_path = '/DL_course_data/Lab1/Skin/'  # Path to data root with two subdirs.
     train_data_path = os.path.join(data_path, 'train')
-    test_data_path = os.path.join(data_path, 'validation')
+    test_data_path = os.path.join(data_path, 'test')
     train_list = os.listdir(train_data_path)
     test_list = os.listdir(test_data_path)
     x_train, x_test, y_train, y_test = get_train_test_arrays(
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     img_w = 128  # Witdh of input images
     img_h = 128  # Height of input images
     img_ch = 1  # Number of channels
-    base = 8  # Number of neurons in first layer
+    base = 8  # Number of feature maps in first layer
     learning_rate = 0.0001  # Learning rate
     bs = 8  # Batch size
     n_ep = 150  # Number of epochs

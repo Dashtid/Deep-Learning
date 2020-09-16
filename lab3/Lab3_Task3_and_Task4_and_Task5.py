@@ -26,19 +26,19 @@ if __name__ == "__main__":
 
     # --------------------------------------Task 3A -------------------------------------- #
 
-    sample_dir = '/DL_course_data/lab1/X_ray/train/C4_4662.jpg'
+    sample_dir = '/DL_course_data/Lab1/X_ray/train/C4_4662.jpg'
     img = imread(sample_dir)
     row, col = img.shape
 
     # Scaling
     scale_factor = 0.1
     image_rescaled = rescale(img, scale_factor)
-    show_paired(img, image_rescaled, "Rescaled")
+    show_paired(img, row, col, image_rescaled, "Rescaled")
 
     # Rotation
     angle = 90
     image_rotated = rotate(img, angle)
-    show_paired(img, image_rotated, "Rotated")
+    show_paired(img, row, col, image_rotated, "Rotated")
 
     # Horizontal Flip
     horizontal_flip = img[:, ::-1]
@@ -52,11 +52,11 @@ if __name__ == "__main__":
     low_bound, high_bound = 1, 50
     min_val, max_val = np.percentile(img, (low_bound, high_bound))
     better_contrast = exposure.rescale_intensity(img, in_range=(min_val, max_val))
-    show_paired(img, better_contrast, row, col, 'Intensity Rescaling')
+    show_paired(img, row, col, better_contrast, 'Intensity Rescaling')
 
     # -------------------------------------- Task 3B -------------------------------------- #
 
-    Sample = '/DL_course_data/lab1/X_ray/train/C4_4662.jpg'
+    Sample = '/DL_course_data/Lab1/X_ray/train/C4_4662.jpg'
     Img = imread(Sample)
     Img = np.expand_dims(Img, axis=2)
     Img = np.expand_dims(Img, axis=0)
@@ -78,8 +78,9 @@ if __name__ == "__main__":
 
     # -------------------------------------- Task 4 -------------------------------------- #
 
-    train_dir = '/DL_course_data/lab2/Skin/train/'
-    val_dir = '/DL_course_data/lab2/Skin/validation/'
+    # Setting paths to skin images
+    train_dir = '/DL_course_data/Lab2/Skin/train/'
+    val_dir = '/DL_course_data/Lab2/Skin/validation/'
 
     train_generator, val_generator = datagenerator(train_dir, val_dir)
 
@@ -87,25 +88,29 @@ if __name__ == "__main__":
     img_w = 256  # Witdh of input images
     img_h = 256  # Height of input images
     img_ch = 1  # Number of channels
-    base = 64  # Number of neurons in first layer
+    base = 64  # Number of feature maps in first layer
     learning_rate = 0.00001  # Learning rate
     n_ep = 80  # Number of epochs
     dropout = 1  # 0 false, 1 true
     batch_norm = 1
     spat_dropout = 0  # 0 false, 1 true
+    categorical = 0  # On/Off switch; 1 => categorical crossentropy, 0 => binary crossentropy
 
     alexnet4 = alexnet(img_ch, img_w, img_h, base, dropout, batch_norm, spat_dropout)
-    train_with_generator(alexnet4, learning_rate, train_generator, n_ep, val_generator)
+    train_with_generator(alexnet4, learning_rate, train_generator, n_ep, val_generator, categorical)
 
     # -------------------------------------- Task 5 -------------------------------------- #
 
+    # Training with skin images
     vgg16_1 = vgg16(img_ch, img_w, img_h, base, batch_norm)
-    train_with_generator(vgg16_1, learning_rate, train_generator, n_ep, val_generator)
+    train_with_generator(vgg16_1, learning_rate, train_generator, n_ep, val_generator, categorical)
 
-    train_dir = '/DL_course_data/lab2/Bone/train/'
-    val_dir = '/DL_course_data/lab2/Bone/validation/'
+    # Setting paths to bone images
+    train_dir = '/DL_course_data/Lab2/Bone/train/'
+    val_dir = '/DL_course_data/Lab2/Bone/validation/'
 
     train_generator, val_generator = datagenerator(train_dir, val_dir)
 
+    # Training with bone images
     vgg16_2 = vgg16(img_ch, img_w, img_h, base, batch_norm)
-    train_with_generator(vgg16_2, learning_rate, train_generator, n_ep, val_generator)
+    train_with_generator(vgg16_2, learning_rate, train_generator, n_ep, val_generator, categorical)
