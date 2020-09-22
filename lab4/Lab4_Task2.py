@@ -21,7 +21,19 @@ from functions.Lab4.networks import get_unet
 # --- Task 2 --- #
 
 if __name__ == "__main__":
-
     # -------------------------------------- Task 2A -------------------------------------- #
+    base = 8  # Number of feature maps in convolutional layer
+    img_w = 256  # Image width
+    img_h = 256  # Image height
+    img_ch = 1  # Number of image channels
+    bs = 8  # Batch size
+    lr = 0.00001  # Learning rate
+    batch_norm = 1  # On/Off switch for batch-normalization layer, 0 = False, 1 = True
+    dropout = 1  # On/Off switch for dropout layer, 0 = False, 1 = True
+    dice = 1  # On/Off switch for DICE-loss function, 0 = False, 1 = True
+    categorical = 0  # On/Off switch for categorical cross-entropy function, 0 = False, 1 = True
+    n_ep = 50
 
-    # -------------------------------------- Task 2A -------------------------------------- #
+    network_task2a1 = get_unet(base, img_w, img_h, img_ch, batch_norm, dropout)
+    network_task2a1.
+    # -------------------------------------- Task 2B -------------------------------------- #
