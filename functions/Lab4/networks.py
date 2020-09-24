@@ -1,23 +1,11 @@
-import os
-import warnings
-import numpy as np
-import matplotlib.pyplot as plt
-
-from tensorflow.keras import applications
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Convolution2D, Activation, Dropout, \
-    BatchNormalization, SpatialDropout2D, ZeroPadding2D, Conv2D, Conv2DTranspose, Concatenate, concatenate
-from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img
-
-from random import shuffle
-from skimage.io import imread
-from skimage.transform import resize
-from skimage.transform import rescale
-from skimage.transform import rotate
-from skimage import exposure
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, MaxPooling2D, Activation, Dropout, \
+    BatchNormalization, Conv2D, Conv2DTranspose, concatenate
 
 
-# Unet
+# -----  U - Net ----- #
+
+# ---- Creating the parts of the U - Net ---- #
 def conv_block(base, layer, batch_norm):
     layer_conv = Conv2D(filters=base, kernel_size=(3, 3), strides=(1, 1), padding='same')(layer)
     if batch_norm:
@@ -48,9 +36,10 @@ def deconv_block(base, conc_layer, layer, batch_norm, dropout):
     return layer_b
 
 
-def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
+# ---- Assembling all the parts ---- #
+def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout, task3=1, **kwargs):
 
-    # Defining the input layer
+    # Defining the Input layer
     layer_inp = Input(shape=(img_h, img_w, img_ch))
 
     # --- Contraction Phase --- #
@@ -91,7 +80,8 @@ def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
     layer_db3 = deconv_block(base * 2, layer_b2, layer_db2, batch_norm, dropout)
     layer_db4 = deconv_block(base, layer_b1, layer_db3, batch_norm, dropout)
 
-    layer_conv2 = Conv2D(filters=1, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
+    # --- Output layer --- #
+    layer_conv2 = Conv2D(filters=task3, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
     layer_out = Activation('sigmoid')(layer_conv2)
 
     # --- Creating the model --- #
