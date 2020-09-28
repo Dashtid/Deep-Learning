@@ -37,38 +37,39 @@ def deconv_block(base, conc_layer, layer, batch_norm, dropout):
 
 
 # ---- Assembling all the parts ---- #
-def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
+def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout, task3=1, **kwargs):
 
     # Defining the Input layer
     layer_inp = Input(shape=(img_h, img_w, img_ch))
 
     # --- Contraction Phase --- #
     layer_b1 = conv_block(base, layer_inp, batch_norm)
-    layer_mp1 = MaxPooling2D(pool_size=(2, 2))(layer_b1)
-
     if dropout:
-        layer_d1 = Dropout(0.2)(layer_mp1)
-        layer_b2 = conv_block(base * 2, layer_d1, batch_norm)
+        layer_sd1 = Dropout(0.2)(layer_b1)
+        layer_mp1 = MaxPooling2D(pool_size=(2, 2))(layer_sd1)
     else:
-        layer_b2 = conv_block(base * 2, layer_mp1, batch_norm)
+        layer_mp1 = MaxPooling2D(pool_size=(2, 2))(layer_b1)
 
-    layer_mp2 = MaxPooling2D(pool_size=(2, 2))(layer_b2)
-
+    layer_b2 = conv_block(base * 2, layer_mp1, batch_norm)
     if dropout:
-        layer_d2 = Dropout(0.2)(layer_mp2)
-        layer_b3 = conv_block(base * 4, layer_d2, batch_norm)
+        layer_sd2 = Dropout(0.2)(layer_b2)
+        layer_mp2 = MaxPooling2D(pool_size=(2, 2))(layer_sd2)
     else:
-        layer_b3 = conv_block(base * 4, layer_mp2, batch_norm)
+        layer_mp2 = MaxPooling2D(pool_size=(2, 2))(layer_b2)
 
-    layer_mp3 = MaxPooling2D(pool_size=(2, 2))(layer_b3)
-
+    layer_b3 = conv_block(base * 4, layer_mp2, batch_norm)
     if dropout:
-        layer_d3 = Dropout(0.2)(layer_mp3)
-        layer_b4 = conv_block(base * 8, layer_d3, batch_norm)
+        layer_sd3 = Dropout(0.2)(layer_b3)
+        layer_mp3 = MaxPooling2D(pool_size=(2, 2))(layer_sd3)
     else:
-        layer_b4 = conv_block(base * 8, layer_mp3, batch_norm)
+        layer_mp3 = MaxPooling2D(pool_size=(2, 2))(layer_b3)
 
-    layer_mp4 = MaxPooling2D(pool_size=(2, 2))(layer_b4)
+    layer_b4 = conv_block(base * 8, layer_mp3, batch_norm)
+    if dropout:
+        layer_sd4 = Dropout(0.2)(layer_b4)
+        layer_mp4 = MaxPooling2D(pool_size=(2, 2))(layer_sd4)
+    else:
+        layer_mp4 = MaxPooling2D(pool_size=(2, 2))(layer_b4)
 
     # --- Bottle-neck Phase --- #
     layer_b5 = conv_block(base * 16, layer_mp4, batch_norm)
@@ -80,11 +81,10 @@ def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
     layer_db4 = deconv_block(base, layer_b1, layer_db3, batch_norm, dropout)
 
     # --- Output layer --- #
-    layer_conv2 = Conv2D(filters=1, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
+    layer_conv2 = Conv2D(filters=task3, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
     layer_out = Activation('sigmoid')(layer_conv2)
 
     # --- Creating the model --- #
     model = Model(inputs=layer_inp, outputs=layer_out)
-
     model.summary()
     return model

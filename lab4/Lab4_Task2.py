@@ -49,7 +49,7 @@ if __name__ == "__main__":
     img_h = 256  # Image height
     img_ch = 1  # Number of image channels
     bs = 8  # Batch size
-    lr = 0.00001  # Learning rate
+    lr = 0.0001  # Learning rate
     batch_norm = 1  # On/Off switch for batch-normalization layer, 0 = False, 1 = True
     dropout = 1  # On/Off switch for dropout layer, 0 = False, 1 = True
     dice = 1  # On/Off switch for DICE-loss function, 0 = False, 1 = True

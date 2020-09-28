@@ -5,6 +5,7 @@ import numpy as np
 from random import shuffle
 from skimage.io import imread
 from skimage.transform import resize
+from tensorflow.keras import backend as K
 
 
 def get_data(data_path, data_list, img_h, img_w):
@@ -104,7 +105,7 @@ def load_img(path_list, size, mask):
     for i in range(len(path_list)):
         img = imread(path_list[i], 0)
         img = resize(img[:, :], (size, size))
-        img = img.reshape(size, size) / 255.
+        img = img.reshape(size, size) / np.max(img)
         if mask:
             img[img > 0] = 1
             img[img != 1] = 0
