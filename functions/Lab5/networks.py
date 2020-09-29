@@ -1,6 +1,8 @@
+from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, MaxPooling2D, Activation, Dropout, \
-    BatchNormalization, Conv2D, Conv2DTranspose, concatenate
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import Input, MaxPooling2D, Conv2D, Activation, Dropout, \
+    BatchNormalization, Conv2DTranspose, concatenate
 
 
 # -----  U - Net ----- #
@@ -38,7 +40,6 @@ def deconv_block(base, conc_layer, layer, batch_norm, dropout):
 
 # ---- Assembling all the parts ---- #
 def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout, task3=1, **kwargs):
-
     # Defining the Input layer
     layer_inp = Input(shape=(img_h, img_w, img_ch))
 
@@ -88,3 +89,74 @@ def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout, task3=1, **kwargs)
     model = Model(inputs=layer_inp, outputs=layer_out)
     model.summary()
     return model
+
+
+def get_unet_weight(base, img_w, img_h, img_ch, batch_norm, dropout, weight_strength, lr, metric):
+    layer_inp = Input(shape=(img_h, img_w, img_ch))
+    weight_maps = Input(shape=(img_w, img_h, img_ch), name='weights')
+    layer_b1 = conv_block(base, layer_inp, batch_norm)
+
+    layer_mp1 = MaxPooling2D(pool_size=(2, 2))(layer_b1)
+
+    if dropout:
+        layer_d1 = Dropout(0.2)(layer_mp1)
+        layer_b2 = conv_block(base * 2, layer_d1, batch_norm)
+    else:
+        layer_b2 = conv_block(base * 2, layer_mp1, batch_norm)
+
+    layer_mp2 = MaxPooling2D(pool_size=(2, 2))(layer_b2)
+
+    if dropout:
+        layer_d2 = Dropout(0.2)(layer_mp2)
+        layer_b3 = conv_block(base * 4, layer_d2, batch_norm)
+    else:
+        layer_b3 = conv_block(base * 4, layer_mp2, batch_norm)
+
+    layer_mp3 = MaxPooling2D(pool_size=(2, 2))(layer_b3)
+
+    if dropout:
+        layer_d3 = Dropout(0.2)(layer_mp3)
+        layer_b4 = conv_block(base * 8, layer_d3, batch_norm)
+    else:
+        layer_b4 = conv_block(base * 8, layer_mp3, batch_norm)
+
+    layer_mp4 = MaxPooling2D(pool_size=(2, 2))(layer_b4)
+    # Bottle-neck
+    layer_b5 = conv_block(base * 16, layer_mp4, batch_norm)
+
+    #     if dropout:
+    #         layer_b5=Dropout(0.2)(layer_b5)
+
+    layer_db1 = deconv_block(base * 8, layer_b4, layer_b5, batch_norm, dropout)
+
+    layer_db2 = deconv_block(base * 4, layer_b3, layer_db1, batch_norm, dropout)
+
+    layer_db3 = deconv_block(base * 2, layer_b2, layer_db2, batch_norm, dropout)
+
+    layer_db4 = deconv_block(base, layer_b1, layer_db3, batch_norm, dropout)
+
+    layer_conv2 = Conv2D(filters=1, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
+    layer_out = Activation('sigmoid')(layer_conv2)
+
+    model = Model(inputs=[layer_inp, weight_maps], outputs=layer_out)
+
+    model.summary()
+    model.compile(loss=weighted_loss(weight_maps, weight_strength),
+                  optimizer=Adam(lr=lr),
+                  metrics=metric)
+    return model
+
+
+def weighted_loss(weight_map, weight_strength):
+    def weighted_dice_loss(y_true, y_pred):
+        y_true_f = K.flatten(y_true)
+        y_pred_f = K.flatten(y_pred)
+        weight_f = K.flatten(weight_map)
+        weight_f = weight_f * weight_strength
+        weight_f = 1 / (weight_f + 1)
+        weighted_intersection = K.sum(weight_f * (y_true_f * y_pred_f))
+        return 1 - (2. * weighted_intersection + K.epsilon()) / (K.sum(y_true_f) + K.sum(y_pred_f) + K.epsilon())
+
+    return weighted_dice_loss
+
+
