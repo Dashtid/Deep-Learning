@@ -26,7 +26,6 @@ from functions.Lab5.training_tools import recall, precision, dice_coef, dice_los
 # ------------ Task 3 ------------ #
 
 if __name__ == "__main__":
-
     img_dir = '/DL_course_data/Lab3/MRI/Image/'
     msk_dir = '/DL_course_data/Lab3/MRI/Mask/'
 
@@ -41,12 +40,12 @@ if __name__ == "__main__":
     lr = 0.0001
     batch_norm = 1
     dropout = 1
-    n_ep = 150
+    n_ep = 100
     folds = 3
     Metric = [dice_coef, precision, recall]
 
-    split_list = k_split(img_pathlist[:1200], msk_pathlist[:1200], folds)
-    model_predictions = np.zeros((len(img_pathlist[:1200]), img_h, img_w, 1))
+    split_list = k_split(img_pathlist[:1800], msk_pathlist[:1800], folds)
+    model_predictions = np.zeros((len(img_pathlist[:1800]), img_h, img_w, 1))
 
     for s in range(2):
         for i in range(folds):
@@ -83,9 +82,12 @@ if __name__ == "__main__":
             val_predictions = network_task3.predict(x_val, batch_size=int(bs / 2))
             model_predictions[(i * img_per_fold):((i + 1) * img_per_fold)] = val_predictions
             np.save('step' + str(s) + '.npy', model_predictions)
+
             del x_train
             del y_train
             del x_val
             del y_val
 
             plotting(network_task3_hist)
+
+            K.clear_session

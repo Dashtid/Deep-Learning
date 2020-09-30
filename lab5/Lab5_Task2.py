@@ -19,9 +19,9 @@ from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Convolu
     BatchNormalization, SpatialDropout2D, ZeroPadding2D, Conv2D, Conv2DTranspose, Concatenate
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img
 
-from functions.Lab5.dataloader import k_split, get_file_list, train_gen
-from functions.Lab5.networks import get_unet
-from functions.Lab5.training_tools import recall, precision, dice_coef, dice_loss, plotting
+from functions.Lab5.dataloader import shuffle_n_split_data, get_file_list, train_gen_weight
+from functions.Lab5.networks import get_unet_weight
+from functions.Lab5.training_tools import recall, precision, dice_coef, plotting
 
 # --------------- Task 2 ------------ #
 
@@ -40,39 +40,28 @@ if __name__ == "__main__":
     lr = 0.0001
     batch_norm = 1
     dropout = 1
-    n_ep = 10
-    folds = 3
+    n_ep = 150
     Metric = [dice_coef, precision, recall]
+    weight_strength = 1
 
-    split_list = k_split(img_pathlist, msk_pathlist, folds)
+    x_train_list, y_train_list, x_val_list, y_val_list = shuffle_n_split_data(img_pathlist, msk_pathlist, 0.8)
 
-    for i in range(folds):
-        x_train_list = split_list[i][0]
-        y_train_list = split_list[i][1]
-        x_val_list = split_list[i][2]
-        y_val_list = split_list[i][3]
+    n_train_sample = len(x_train_list)
+    n_val_sample = len(x_val_list)
 
-        n_train_sample = len(x_train_list)
-        n_val_sample = len(x_val_list)
+    train_generator = train_gen_weight(x_train_list,
+                                       y_train_list,
+                                       n_train_sample, bs, img_w)
 
-        train_generator = train_gen(x_train_list,
-                                    y_train_list,
-                                    n_train_sample, bs, img_w)
+    val_generator = train_gen_weight(x_val_list,
+                                     y_val_list,
+                                     n_val_sample, bs, img_w)
 
-        val_generator = train_gen(x_val_list,
-                                  y_val_list,
-                                  n_val_sample, bs, img_w)
+    network_task2 = get_unet_weight(base, img_w, img_h, img_ch, batch_norm, dropout, weight_strength, lr, Metric)
 
-        network_task2 = get_unet(base, img_w, img_h, img_ch, batch_norm, dropout)
-
-        network_task2.compile(loss=dice_loss,
-                              optimizer=Adam(lr=lr),
-                              metrics=Metric)
-
-        network_task2_hist = network_task2.fit_generator(train_generator,
-                                                         steps_per_epoch=int(n_train_sample) / bs,
-                                                         validation_data=val_generator,
-                                                         validation_steps=int(n_val_sample) / bs,
-                                                         epochs=n_ep)
-
-        plotting(network_task2_hist)
+    network_task2_hist = network_task2.fit_generator(train_generator,
+                                                     steps_per_epoch=int(n_train_sample) / bs,
+                                                     validation_data=val_generator,
+                                                     validation_steps=int(n_val_sample) / bs,
+                                                     epochs=n_ep)
+    plotting(network_task2_hist)

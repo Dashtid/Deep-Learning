@@ -40,7 +40,7 @@ if __name__ == "__main__":
     lr = 0.0001
     batch_norm = 1
     dropout = 1
-    n_ep = 10
+    n_ep = 50
     folds = 3
     Metric = [dice_coef, precision, recall]
 
@@ -70,9 +70,8 @@ if __name__ == "__main__":
                               metrics=Metric)
 
         network_task1_hist = network_task1.fit_generator(train_generator,
-                                                         steps_per_epoch=n_train_sample,
+                                                         steps_per_epoch=n_train_sample/bs,
                                                          validation_data=val_generator,
-                                                         validation_steps=n_val_sample,
+                                                         validation_steps=n_val_sample/bs,
                                                          epochs=n_ep)
-
         plotting(network_task1_hist)

@@ -3,14 +3,6 @@ from matplotlib import pyplot as plt
 from tensorflow.keras import backend as K
 
 
-def combine_generator(gen1, gen2, gen3):
-    while True:
-        x = gen1.next()
-        y = gen2.next()
-        w = gen3.next()
-        yield [x, w], y
-
-
 def get_autocontext_fold(y_pred, f, n_folds, img_per_fold, img_size):
     autocontext_val = y_pred[(f * img_per_fold):((f + 1) * img_per_fold)]
     autocontext_train = np.zeros(((n_folds - 1) * img_per_fold, img_size, img_size, 1))
