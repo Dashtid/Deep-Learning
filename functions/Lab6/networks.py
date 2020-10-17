@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Reshape, ConvLSTM2D, Dense, MaxPooling2D, Conv2D, Activation, \
     Dropout, BatchNormalization, Conv2DTranspose, concatenate, LSTM, Bidirectional
-from tensorflow.keras.utils import Sequence
 
 
 def plot_history(net_history):
@@ -17,37 +16,7 @@ def plot_history(net_history):
     plt.xlabel("Epochs")
     plt.ylabel("Loss Value")
     plt.legend()
-    plt.imshow()
-
-
-class MyBatchGenerator(Sequence):
-    def __init__(self, x, y, batch_size=1, shuffle=True):
-        self.x = x
-        self.y = y
-        self.batch_size = batch_size
-        self.shuffle = shuffle
-        self.on_epoch_end()
-        self.indexes = np.arange(len(self.y))
-
-    def __len__(self):
-        """Get number of batches per epoch"""
-        return int(np.floor(len(self.y) / self.batch_size))
-
-    def __getitem__(self, index):
-        return self.__data_generation(index)
-
-    def on_epoch_end(self):
-        """Shuffle indexes after each epoch"""
-        if self.shuffle is True:
-            np.random.shuffle(self.indexes)
-
-    def __data_generation(self, index):
-        xb = np.empty((self.batch_size, *self.x[index].shape))
-        yb = np.empty((self.batch_size, 1))
-        for s in range(0, self.batch_size):
-            xb[s] = self.x[index]
-            yb[s] = self.y[index]
-        return xb, yb
+    plt.show()
 
 
 def conv_block(base, layer, batch_norm):
@@ -67,18 +36,6 @@ def conv_block(base, layer, batch_norm):
 
     return layer_act2
 
-
-# # up-sampling:
-# up6 = Conv2DTranspose(n_filters * 8, (3, 3), strides=(2, 2), padding='same')(conv5)
-# # reshaping:
-# x1 = Reshape(target_shape=(1, np.int32(img_size / 8), np.int32(img_size / 8), n_filters * 8))(conv4)
-# x2 = Reshape(target_shape=(1, np.int32(img_size / 8), np.int32(img_size / 8), n_filters * 8))(up6)
-# # concatenation:
-# up6 = concatenate([x1, x2], axis=1)
-# # LSTM:
-# up6 = ConvLSTM2D(n_filters*4, (3, 3), padding='same', return_sequences=False, go_backwards=True)(up6)
-# # the function conv2d_block implements the usual convolutional block with 2 convolutional layer:
-# conv6 = conv2d_block(u6, n_filters=n_filters * 8, kernel_size=3, batchnorm= True)
 
 def deconv_block(base, conc_layer, layer, batch_norm, dropout, img_size):
     layer_convT = Conv2DTranspose(filters=base, kernel_size=(3, 3), strides=(2, 2), padding='same')(layer)
@@ -101,11 +58,12 @@ def deconv_block(base, conc_layer, layer, batch_norm, dropout, img_size):
 
 
 def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
+    # Defining the Input layer
     layer_inp = Input(shape=(img_h, img_w, img_ch))
+
+    # --- Contraction Phase --- #
     layer_b1 = conv_block(base, layer_inp, batch_norm)
-
     layer_mp1 = MaxPooling2D(pool_size=(2, 2))(layer_b1)
-
     if dropout:
         layer_d1 = Dropout(0.2)(layer_mp1)
         layer_b2 = conv_block(base * 2, layer_d1, batch_norm)
@@ -127,19 +85,22 @@ def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
         layer_b4 = conv_block(base * 8, layer_d3, batch_norm)
     else:
         layer_b4 = conv_block(base * 8, layer_mp3, batch_norm)
-
     layer_mp4 = MaxPooling2D(pool_size=(2, 2))(layer_b4)
-    # Bottle-neck
+
+    # --- Bottle-neck Phase --- #
     layer_b5 = conv_block(base * 16, layer_mp4, batch_norm)
 
+    # --- Expansion Phase --- #
     layer_db1 = deconv_block(base * 8, layer_b4, layer_b5, batch_norm, dropout, img_h / 8)
     layer_db2 = deconv_block(base * 4, layer_b3, layer_db1, batch_norm, dropout, img_h / 4)
     layer_db3 = deconv_block(base * 2, layer_b2, layer_db2, batch_norm, dropout, img_h / 2)
     layer_db4 = deconv_block(base, layer_b1, layer_db3, batch_norm, dropout, img_h)
 
+    # --- Output layer --- #
     layer_conv2 = Conv2D(filters=1, kernel_size=(1, 1), strides=(1, 1), padding='same')(layer_db4)
     layer_out = Activation('sigmoid')(layer_conv2)
 
+    # --- Creating the model --- #
     model = Model(inputs=layer_inp, outputs=layer_out)
 
     model.summary()
@@ -147,23 +108,23 @@ def get_unet(base, img_w, img_h, img_ch, batch_norm, dropout):
     return model
 
 
-def reg_model(input_layer, bd):
+def reg_model(n_units, input_layer, bd):
     if bd:
-        l1 = Bidirectional(LSTM(20,
+        l1 = Bidirectional(LSTM(n_units,
                                 return_sequences=True,
                                 stateful=True),
                            merge_mode='concat')(input_layer)
     else:
-        l1 = LSTM(20, return_sequences=True, stateful=True)(input_layer)
+        l1 = LSTM(n_units, return_sequences=True, stateful=True)(input_layer)
     l2 = Dropout(0.2)(l1)
 
-    l3 = LSTM(20, return_sequences=True, stateful=True)(l2)
+    l3 = LSTM(n_units, return_sequences=True, stateful=True)(l2)
     l4 = Dropout(0.2)(l3)
 
-    l5 = LSTM(20, return_sequences=True, stateful=True)(l4)
+    l5 = LSTM(n_units, return_sequences=True, stateful=True)(l4)
     l6 = Dropout(0.2)(l5)
 
-    l7 = LSTM(20, stateful=True)(l6)
+    l7 = LSTM(n_units, stateful=True)(l6)
     l8 = Dropout(0.2)(l7)
 
     output_layer = Dense(1)(l8)

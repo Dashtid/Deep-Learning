@@ -76,15 +76,17 @@ if __name__ == "__main__":
 
     # ---------------- Setting up parameters ---------------- #
 
-    lr = 0.001              # Learning rate
-    bs = 16                 # Batch size
-    n_ep = 100              # Number of epochs
-    input_size = 60         # Size of input
-    input_dimensions = 1    # Dimensions of input
-    n_units = 20            # Number of neurons
+    lr = 0.001  # Learning rate
+    bs = 16  # Batch size
+    n_ep = 100  # Number of epochs
+    input_size = 60  # Size of input
+    input_dimensions = 1  # Dimensions of input
+    n_units = 20  # Number of neurons
+    bd = 0  # Switch that turns on bi-directional ( 1 = ON / 0 = OFF)
 
-    # input_layer=Input((input_size,input_dimensions),batch_shape=(bs,input_size,input_dimensions))
-    model = reg_model(bs, input_size, input_dimensions, n_units)
+    input_layer = Input(batch_shape=(bs, input_size, input_dimensions))
+
+    model = reg_model(n_units, input_layer, bd)
 
     model.compile(loss="mse",
                   optimizer=Adam(lr=lr),
