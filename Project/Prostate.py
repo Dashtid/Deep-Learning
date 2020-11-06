@@ -15,43 +15,46 @@ from tensorflow.keras.layers import Input, Add, AveragePooling2D, Reshape, ConvL
     MaxPooling2D, Conv2D, Activation, Dropout, BatchNormalization, Conv2DTranspose, concatenate, LSTM, SpatialDropout2D
 
 from Project.Functions.Dataloader import get_file_list, load_img_array
-from Project.Functions.Networks import get_unet_deep_sd
+from Project.Functions.Networks import get_unet_deep_lstm_sd
 from Project.Functions.Training_tools import dice_coef, dice_loss, precision, recall, plot_history, data_generator, \
     trainer, calc_n_average_dice
 
-# -------------------------------------------- Brain - Growth -------------------------------------------- #
+# -------------------------------------------- Prostate -------------------------------------------- #
 
 if __name__ == "__main__":
     # Setting paths to directories
-    train_dir = 'Project_data/training_data_v2/brain-growth'
-    val_dir = 'Project_data/validation_data_v2/brain-growth'
-    test_dir = 'Project_data/test/brain-growth'
+    train_dir = 'Project_data/training_data_v2/prostate'
+    val_dir = 'Project_data/validation_data_v2/prostate'
+    test_dir = 'Project_data/test/prostate'
 
-    # -------------------------------------------- Deep U - Net -------------------------------------------- #
+    # ------------------------------------- Deep U - Net w/ Spatial SD + LSTM -------------------------------------- #
 
     # ----- Parameters ----- #
     base = 16  # Number of feature maps
-    img_size = 256  # Size of input
+    img_size = 512  # Size of input
     img_ch = 1  # Dimensions of input
     bs = 1  # Batch size
     lr = 0.0001  # Learning rate
     batch_norm = 1  # On/Off switch for batch-normalization layer, 0 = False, 1 = True
     dropout = 1  # On/Off switch for dropout layer, 0 = False, 1 = True
-    n_ep = 500  # Number of epochs
-    dr_rate = 0.5  # Drop-rate
-    n_masks = 7  # Number of expert segmentations
-    window_level = 0  # On/Off switch for windowing using default parameters, 0 = False, 1 = True
+    n_ep = 200  # Number of epochs
+    dr_rate = 0.2  # Drop-rate
+    n_masks = 6  # Number of expert segmentations
+    n_test_im = 7  # Number of images to use for testing
+    window_level = 0  # Parameter for changing the brightness of the images
 
-    # Creating prediction array, 7 networks, 5 test images
-    preds = np.zeros((7, 5, img_size, img_size, img_ch))
+    # 6 networks, 7 test images
+    preds = np.zeros((n_masks, n_test_im, img_size, img_size, 1))
+
+    task = 1  # CHANGE THIS TO CHOOSE WHICH TASK YOU WANT TO RUN (task 1 or task 2)
 
     for i in range(n_masks):
         K.clear_session()  # Clearing weights of previous network to save memory
 
-        # Combining paths with file names and fetching a list with images corresponding to the right expert
-        train_img_path, train_msk_path = get_file_list(train_dir, 'seg0' + str(i + 1))
-        val_img_path, val_msk_path = get_file_list(val_dir, 'seg0' + str(i + 1))
-        test_img_path, test_msk_path = get_file_list(test_dir, 'seg0' + str(i + 1))
+        # Combining paths with file names and fetching a list with images corresponding to the right expert and task
+        train_img_path, train_msk_path = get_file_list(train_dir, 'task0' + str(task) + '_' + 'seg0' + str(i + 1))
+        val_img_path, val_msk_path = get_file_list(val_dir, 'task0' + str(task) + '_' + 'seg0' + str(i + 1))
+        test_img_path, test_msk_path = get_file_list(test_dir, 'task0' + str(task) + '_' + 'seg0' + str(i + 1))
 
         # Loading in training and validation images as an array
         x_train = load_img_array(train_img_path, img_size, img_ch, window_level)
@@ -66,7 +69,7 @@ if __name__ == "__main__":
         val_gen = data_generator(x_val, y_val, bs, 2)
 
         # Creating the network
-        network = get_unet_deep_sd(base, img_size, img_ch, batch_norm, dropout, dr_rate)
+        network = get_unet_deep_lstm_sd(base, img_size, img_ch, batch_norm, dropout, dr_rate)
 
         # Training the network
         hist, trained_network = trainer(network, n_ep, lr, bs, x_train, x_val, train_gen, val_gen)
@@ -78,5 +81,6 @@ if __name__ == "__main__":
         preds[i] = trained_network.predict(x_test)  # One mask for each expert
 
     # Function that calculates the dice scores of our predicted masks and does an average on these scores
-    x = calc_n_average_dice(preds, n_masks, test_dir, 1, img_size)
+    x = calc_n_average_dice(preds, n_masks, test_dir, task, img_size)
     print(x)  # Printing the average
+
