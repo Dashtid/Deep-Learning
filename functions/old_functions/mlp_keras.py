@@ -1,4 +1,4 @@
-from lab1.Lab1 import Input
+from Lab1 import Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Conv2D
 

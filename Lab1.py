@@ -105,8 +105,6 @@ if __name__ == "__main__":
 
     # Constructor for a 4 layer MLP using TF Keras Model class
 
-    # Task 4
-
     # ---- Parameters ---- #
     img_w = 128  # Witdh of input images
     img_h = 128  # Height of input images
