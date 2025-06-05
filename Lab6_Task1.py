@@ -18,7 +18,7 @@ from tensorflow.keras.layers import Input, Reshape, ConvLSTM2D, Dense, Flatten, 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import Sequence
 
-from functions.Lab6.networks import reg_model, plot_history
+from functions.networks5 import reg_model, plot_history
 
 if __name__ == "__main__":
 

@@ -5,8 +5,8 @@ from tensorflow.keras import applications
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from functions.Lab3.networks import MLP
-from functions.Lab3.training_tools import train_with_adam
+from functions.networks2 import MLP
+from functions.training_tools2 import train_with_adam
 from functions.dataloader import get_length
 
 # --- Task 6 --- #

@@ -16,8 +16,8 @@ from skimage.transform import rescale
 from skimage.transform import rotate
 from skimage import exposure
 
-from functions.Lab3.networks import alexnet, vgg16
-from functions.Lab3.training_tools import train_with_generator
+from functions.networks2 import alexnet, vgg16
+from functions.training_tools2 import train_with_generator
 from functions.dataloader import datagenerator, show_paired
 
 # --- Task 3 & 4 & 5 --- #

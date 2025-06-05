@@ -8,8 +8,8 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Conv2D, Activation, Dropout
 
-from functions.Lab2.networks import alexnet, alexnet_with_dropout
-from functions.Lab2.training_tools import train_with_adam, train_with_adam_and_hinge, train_with_rmsprop, train_with_sgd
+from networks import alexnet, alexnet_with_dropout
+from training_tools import train_with_adam, train_with_adam_and_hinge, train_with_rmsprop, train_with_sgd
 from functions.dataloader import get_train_test_arrays
 
 # --- Task 6 --- #

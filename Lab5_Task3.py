@@ -19,9 +19,9 @@ from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Convolu
     BatchNormalization, SpatialDropout2D, ZeroPadding2D, Conv2D, Conv2DTranspose, Concatenate
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img
 
-from functions.Lab5.dataloader import k_split, get_file_list, load_img
-from functions.Lab5.networks import get_unet
-from functions.Lab5.training_tools import recall, precision, dice_coef, dice_loss, plotting, get_autocontext_fold
+from functions.dataloader4 import k_split, get_file_list, load_img
+from functions.networks4 import get_unet
+from functions.training_tools4 import recall, precision, dice_coef, dice_loss, plotting, get_autocontext_fold
 
 # ------------ Task 3 ------------ #
 

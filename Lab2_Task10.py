@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 
-from functions.Lab2.networks import lenet_with_softmax_multi, alexnet_with_dropout_and_softmax_multi
-from functions.Lab2.training_tools import train_with_adam_and_accuracyplot
+from networks import lenet_with_softmax_multi, alexnet_with_dropout_and_softmax_multi
+from training_tools import train_with_adam_and_accuracyplot
 from functions.dataloader import get_train_test_arrays
 
 # --- Task 10  --- #

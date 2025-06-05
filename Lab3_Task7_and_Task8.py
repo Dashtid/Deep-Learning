@@ -23,8 +23,8 @@ from skimage import exposure
 
 # disable_eager_execution()
 
-from functions.Lab3.networks import alexnet, vgg16, vgg16_2
-from functions.Lab3.training_tools import train_with_generator, plotting
+from functions.networks2 import alexnet, vgg16, vgg16_2
+from functions.training_tools2 import train_with_generator, plotting
 from functions.dataloader import datagenerator, show_paired
 
 # --- Task 7 & 8 --- #

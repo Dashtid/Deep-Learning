@@ -17,8 +17,8 @@ from skimage.transform import rescale
 from skimage.transform import rotate
 from skimage import exposure
 
-from functions.Lab3.networks import alexnet
-from functions.Lab3.training_tools import train_with_adam
+from functions.networks2 import alexnet
+from functions.training_tools2 import train_with_adam
 from functions.dataloader import get_train_test_arrays
 
 # --- Task 2 --- #

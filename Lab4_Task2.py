@@ -18,9 +18,9 @@ from tensorflow.keras.layers import Input, Dense, Flatten, MaxPooling2D, Convolu
     BatchNormalization, SpatialDropout2D, ZeroPadding2D, Conv2D, Conv2DTranspose, Concatenate
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img
 
-from functions.Lab4.networks import get_unet
-from functions.Lab4.dataloader import get_file_list, shuffle_n_split_data, load_img
-from functions.Lab4.training_tools import train_with_generator, train_with_adam
+from functions.networks3 import get_unet
+from functions.dataloader3 import get_file_list, shuffle_n_split_data, load_img
+from functions.training_tools3 import train_with_generator, train_with_adam
 
 # --- Task 2 --- #
 

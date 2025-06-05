@@ -18,9 +18,9 @@ from tensorflow.keras.layers import Input, Reshape, ConvLSTM2D, Dense, Flatten, 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import Sequence
 
-from functions.Lab6.dataloader import get_file_list, shuffle_n_split_data
-from functions.Lab6.training_tools import train_gen, dice_loss, dice_coef, precision, recall
-from functions.Lab6.networks import get_unet, plot_history
+from functions.dataloader5 import get_file_list, shuffle_n_split_data
+from functions.training_tools5 import train_gen, dice_loss, dice_coef, precision, recall
+from functions.networks5 import get_unet, plot_history
 
 if __name__ == "__main__":
 

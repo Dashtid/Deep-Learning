@@ -1,7 +1,7 @@
 import os
 
-from functions.Lab2.networks import alexnet, alexnet_with_dropout, lenet, vgg16, vgg16_with_dropout
-from functions.Lab2.training_tools import train_with_adam
+from networks import alexnet, alexnet_with_dropout, lenet, vgg16, vgg16_with_dropout
+from training_tools import train_with_adam
 from functions.dataloader import get_train_test_arrays
 
 # --- Task 7 --- #
