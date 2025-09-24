@@ -586,3 +586,7 @@ MigrationBackup/
 .idea/vcs.xml
 
 cache/
+
+settings.local.json
+# Claude Code configuration
+.claude/
